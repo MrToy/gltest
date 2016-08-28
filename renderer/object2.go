@@ -1,4 +1,4 @@
-package render
+package renderer
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
@@ -9,25 +9,25 @@ const (
 	LINE
 )
 
-type Object struct {
+type Object2 struct {
 	Data     *[]float32
 	Type     int
 	Model    mgl32.Mat4
 	Image    string
 	Color    *[3]float32
-	Children []*Object
-	Parent   *Object
+	Children []*Object2
+	Parent   *Object2
 	Frames   Frames
 	OnRender func()
 }
 
-func NewObject() *Object {
-	return &Object{
+func NewObject() *Object2 {
+	return &Object2{
 		Model: mgl32.Ident4(),
 	}
 }
 
-func recur(objs []*Object, items []*Object) []*Object {
+func recur(objs []*Object2, items []*Object2) []*Object2 {
 	for _, item := range items {
 		objs = append(objs, item)
 		objs = recur(objs, item.Children)
@@ -35,21 +35,21 @@ func recur(objs []*Object, items []*Object) []*Object {
 	return objs
 }
 
-func (this *Object) GetAll() []*Object {
-	objs := []*Object{}
+func (this *Object2) GetAll() []*Object2 {
+	objs := []*Object2{}
 	objs = append(objs, this)
 	objs = recur(objs, this.Children)
 	return objs
 }
 
-func (this *Object) AddChild(child *Object) {
+func (this *Object2) AddChild(child *Object2) {
 	this.Children = append(this.Children, child)
 	child.Parent = this
 }
 
 //var previousTime = time.Now()
 
-// func (this *Object) Render() {
+// func (this *Object2) Render() {
 // 	angle := 0.0
 // 	elapsed := time.Since(previousTime).Seconds()
 // 	angle += elapsed
