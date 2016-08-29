@@ -31,18 +31,19 @@ void main() {
 #version 330
 
 uniform sampler2D tex;
-
+uniform vec4 color;
 in vec2 fragTexCoord;
 
 out vec4 outputColor;
 
 void main() {
-    outputColor = texture(tex, fragTexCoord);
+    outputColor = vec4(vec3(color)*color[3]+vec3(texture(tex, fragTexCoord)*(1-color[3])),1);
 }
 ` + "\x00"
 )
 
 type Render struct {
+	Scene   *TreeNode
 	window  *glfw.Window
 	program uint32
 }
@@ -85,6 +86,8 @@ func New() (*Render, error) {
 		gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
 		gl.Viewport(0, 0, int32(width), int32(height))
 	})
+	textureUniform := gl.GetUniformLocation(program, gl.Str("tex\x00"))
+	gl.Uniform1i(textureUniform, 0)
 
 	cameraUniform := gl.GetUniformLocation(program, gl.Str("camera\x00"))
 	func() {
@@ -136,7 +139,7 @@ func New() (*Render, error) {
 			gl.UniformMatrix4fv(cameraUniform, 1, false, &camera[0])
 		})
 	}()
-
+	gl.BindFragDataLocation(program, 0, gl.Str("outputColor\x00"))
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LESS)
 	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
@@ -144,6 +147,7 @@ func New() (*Render, error) {
 	render := &Render{
 		window:  window,
 		program: program,
+		Scene:   &TreeNode{},
 	}
 	return render, nil
 }
@@ -152,7 +156,11 @@ func (this *Render) Run() {
 	for !this.window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(this.program)
-
+		for _, it := range this.Scene.GetAll() {
+			if it.Object != nil {
+				it.Object.Render()
+			}
+		}
 		this.window.SwapBuffers()
 		glfw.PollEvents()
 	}
