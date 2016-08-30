@@ -44,6 +44,8 @@ func (this *Frames) Calc(t float64) *mgl32.Mat4 {
 		return nil
 	}
 	rate := float32(this.Frames[i].Time-t) / float32(this.Frames[i].Time-this.Frames[i-1].Time)
-	model := this.Frames[i-1].Model.Mul(1 - rate).Add(this.Frames[i].Model.Mul(rate))
+	m1 := this.Frames[i-1].Model.Mul(1 - rate)
+	m2 := this.Frames[i].Model.Mul(rate)
+	model := m1.Add(m2)
 	return &model
 }

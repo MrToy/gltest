@@ -16,12 +16,13 @@ func main() {
 	}
 	frames := render.Frames{}
 	frames.Add(mgl32.Translate3D(10, 0, 0), glfw.GetTime()+0)
-	frames.Add(mgl32.Mat4{}, glfw.GetTime()+15)
+	frames.Add(mgl32.Translate3D(1, 0, 0), glfw.GetTime()+15)
 	frames.Add(mgl32.Mat4{}, glfw.GetTime()+21)
 	frames.Add(mgl32.Mat4{}, glfw.GetTime()+32)
 
-	//c := frames.Calc(glfw.GetTime() + 11)
-	fmt.Println(mgl32.Translate3D(10, 0, 0).Mul4(mgl32.Translate3D(2, 0, 0).Inv()))
+	fmt.Println(frames)
+	c := frames.Calc(glfw.GetTime() + 11)
+	fmt.Println(c)
 	data := []float32{
 		-1.0, 0.0, -1.0, 0.0, 0.0,
 		1.0, 0.0, 0.0, 1.0, 0.0,
