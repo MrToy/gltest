@@ -7,9 +7,8 @@ import (
 )
 
 type Line struct {
-	Model        mgl32.Mat4
+	Controller
 	Color        mgl32.Vec4
-	modelUniform int32
 	colorUniform int32
 	vao          uint32
 	vbo          uint32
@@ -28,10 +27,6 @@ func (this *Render) CreateLine(data []float32) *Line {
 	gl.EnableVertexAttribArray(vertAttrib)
 	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 3*4, gl.PtrOffset(0))
 
-	model := mgl32.Ident4()
-	modelUniform := gl.GetUniformLocation(this.program, gl.Str("model\x00"))
-	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
-
 	color := mgl32.Vec4{0, 0, 0, 0}
 	colorUniform := gl.GetUniformLocation(this.program, gl.Str("color\x00"))
 	gl.Uniform4fv(colorUniform, 1, &color[0])
@@ -39,13 +34,13 @@ func (this *Render) CreateLine(data []float32) *Line {
 		vao:          vao,
 		vbo:          vbo,
 		total:        len(data) / 3,
-		Model:        model,
-		modelUniform: modelUniform,
+		Controller:   *this.CreateController(),
 		colorUniform: colorUniform,
 	}
 }
 
 func (this *Line) Render() {
+	this.Controller.Render()
 	gl.BindVertexArray(this.vao)
 	gl.UniformMatrix4fv(this.modelUniform, 1, false, &this.Model[0])
 	gl.Uniform4fv(this.colorUniform, 1, &this.Color[0])

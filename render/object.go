@@ -7,9 +7,8 @@ import (
 )
 
 type Object struct {
-	Model        mgl32.Mat4
+	Controller
 	Color        mgl32.Vec4
-	modelUniform int32
 	colorUniform int32
 	vao          uint32
 	vbo          uint32
@@ -32,9 +31,6 @@ func (this *Render) CreateObject(data []float32) *Object {
 	texCoordAttrib := uint32(gl.GetAttribLocation(this.program, gl.Str("vertTexCoord\x00")))
 	gl.EnableVertexAttribArray(texCoordAttrib)
 	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
-	model := mgl32.Ident4()
-	modelUniform := gl.GetUniformLocation(this.program, gl.Str("model\x00"))
-	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
 	color := mgl32.Vec4{0, 0, 0, 0}
 	colorUniform := gl.GetUniformLocation(this.program, gl.Str("color\x00"))
@@ -44,13 +40,13 @@ func (this *Render) CreateObject(data []float32) *Object {
 		vao:          vao,
 		vbo:          vbo,
 		total:        len(data) / 5,
-		Model:        model,
-		modelUniform: modelUniform,
 		colorUniform: colorUniform,
+		Controller:   *this.CreateController(),
 	}
 }
 
 func (this *Object) Render() {
+	this.Controller.Render()
 	gl.BindVertexArray(this.vao)
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, this.texture)

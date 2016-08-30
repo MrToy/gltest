@@ -5,15 +5,15 @@ type Renderer interface {
 }
 
 type TreeNode struct {
-	Object   Renderer
+	Renderer
 	Children []*TreeNode
 	Parent   *TreeNode
 }
 
 func (this *TreeNode) Add(it Renderer) {
 	node := &TreeNode{
-		Object: it,
-		Parent: this,
+		Renderer: it,
+		Parent:   this,
 	}
 	this.Children = append(this.Children, node)
 }

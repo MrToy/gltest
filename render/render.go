@@ -157,8 +157,8 @@ func (this *Render) Run() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(this.program)
 		for _, it := range this.Scene.GetAll() {
-			if it.Object != nil {
-				it.Object.Render()
+			if it.Renderer != nil {
+				it.Render()
 			}
 		}
 		this.window.SwapBuffers()
