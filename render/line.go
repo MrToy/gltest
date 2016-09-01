@@ -7,6 +7,7 @@ import (
 )
 
 type Line struct {
+	TreeNode
 	Controller
 	Color        mgl32.Vec4
 	colorUniform int32
@@ -42,7 +43,6 @@ func (this *Render) CreateLine(data []float32) *Line {
 func (this *Line) Render() {
 	this.Controller.Render()
 	gl.BindVertexArray(this.vao)
-	gl.UniformMatrix4fv(this.modelUniform, 1, false, &this.Model[0])
 	gl.Uniform4fv(this.colorUniform, 1, &this.Color[0])
 	gl.DrawArrays(gl.LINES, 0, int32(this.total))
 }

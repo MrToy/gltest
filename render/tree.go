@@ -1,35 +1,36 @@
 package render
 
-type Renderer interface {
-	Render()
+type TreeGeter interface {
+	GetTree() *TreeNode
 }
 
 type TreeNode struct {
-	Renderer
-	Children []*TreeNode
-	Parent   *TreeNode
+	Children []TreeGeter
+	Parent   TreeGeter
 }
 
-func (this *TreeNode) Add(it Renderer) {
-	node := &TreeNode{
-		Renderer: it,
-		Parent:   this,
-	}
-	this.Children = append(this.Children, node)
+func (this *TreeNode) GetTree() *TreeNode {
+	return this
 }
 
-func (this *TreeNode) GetAll() []*TreeNode {
-	objs := []*TreeNode{}
-	if this != nil {
-		objs = append(objs, this)
-		objs = recur(objs, this.Children)
-	}
-	return objs
+func AddToTree(parent, child TreeGeter) bool {
+	child.GetTree().Parent = parent
+	tree := parent.GetTree()
+	tree.Children = append(tree.Children, child)
+	return true
 }
-func recur(objs []*TreeNode, items []*TreeNode) []*TreeNode {
-	for _, item := range items {
-		objs = append(objs, item)
-		objs = recur(objs, item.Children)
+
+func (this *TreeNode) WalkTree() chan interface{} {
+	c := make(chan interface{})
+	go func() {
+		recur(this, c)
+		close(c)
+	}()
+	return c
+}
+func recur(it TreeGeter, c chan interface{}) {
+	for _, child := range it.GetTree().Children {
+		c <- child
+		recur(child, c)
 	}
-	return objs
 }

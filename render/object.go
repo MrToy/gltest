@@ -46,11 +46,10 @@ func (this *Render) CreateObject(data []float32) *Object {
 }
 
 func (this *Object) Render() {
-	this.Controller.Render()
 	gl.BindVertexArray(this.vao)
+	this.Controller.Render()
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, this.texture)
-	gl.UniformMatrix4fv(this.modelUniform, 1, false, &this.Model[0])
 	gl.Uniform4fv(this.colorUniform, 1, &this.Color[0])
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(this.total))
 }

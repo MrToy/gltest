@@ -4,6 +4,7 @@ import (
 	//"fmt"
 	//"github.com/go-gl/gl/v4.1-core/gl"
 	//"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	"sort"
 )
@@ -15,9 +16,9 @@ type Frame struct {
 
 type Frames struct {
 	Frames   []Frame
-	Current  float64
-	AutoRise *mgl32.Mat4
-	Replay   bool
+	BaseTime float64
+	//AutoRise *mgl32.Mat4
+	Replay bool
 }
 
 func (this *Frames) Len() int {
@@ -36,16 +37,22 @@ func (this *Frames) Add(model mgl32.Mat4, t float64) {
 	sort.Sort(this)
 }
 
-func (this *Frames) Calc(t float64) *mgl32.Mat4 {
-	i := sort.Search(this.Len(), func(i int) bool {
-		return this.Frames[i].Time > t
-	})
-	if i <= 0 || i >= this.Len() {
+func (this *Frames) Calc() *mgl32.Mat4 {
+	if this.Len() < 2 {
 		return nil
 	}
-	rate := float32(this.Frames[i].Time-t) / float32(this.Frames[i].Time-this.Frames[i-1].Time)
-	m1 := this.Frames[i-1].Model.Mul(1 - rate)
-	m2 := this.Frames[i].Model.Mul(rate)
-	model := m1.Add(m2)
+	current := glfw.GetTime()
+	elapsed := current - this.BaseTime
+	i := sort.Search(this.Len(), func(i int) bool {
+		return this.Frames[i].Time > elapsed
+	})
+	if i >= this.Len() {
+		if this.Replay {
+			this.BaseTime = glfw.GetTime()
+		}
+		return &this.Frames[i-1].Model
+	}
+	rate := float32(elapsed-this.Frames[i-1].Time) / float32(this.Frames[i].Time-this.Frames[i-1].Time)
+	model := this.Frames[i-1].Model.Mul(1 - rate).Add(this.Frames[i].Model.Mul(rate))
 	return &model
 }

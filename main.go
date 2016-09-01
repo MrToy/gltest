@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/MrToy/gltest/render"
-	"github.com/go-gl/glfw/v3.2/glfw"
+	//"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	//"math/rand"
 	//"time"
@@ -14,15 +14,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	frames := render.Frames{}
-	frames.Add(mgl32.Translate3D(10, 0, 0), glfw.GetTime()+0)
-	frames.Add(mgl32.Translate3D(1, 0, 0), glfw.GetTime()+15)
-	frames.Add(mgl32.Mat4{}, glfw.GetTime()+21)
-	frames.Add(mgl32.Mat4{}, glfw.GetTime()+32)
 
-	fmt.Println(frames)
-	c := frames.Calc(glfw.GetTime() + 11)
-	fmt.Println(c)
 	data := []float32{
 		-1.0, 0.0, -1.0, 0.0, 0.0,
 		1.0, 0.0, 0.0, 1.0, 0.0,
@@ -42,12 +34,24 @@ func main() {
 	}
 
 	o1 := r.CreateObject(data)
-	o1.Color = mgl32.Vec4{1, 0, 0, 1}
-	r.Scene.Add(o1)
-	o2 := r.CreateObject(data)
-	o2.Model = mgl32.Translate3D(2, 0, 0)
-	o2.SetTexture("square.png")
-	r.Scene.Add(o2)
+	o1.SetTexture("square.png")
+	o1.SelfModel = mgl32.Scale3D(0.3, 0.3, 0.3)
+	frames := render.Frames{Replay: true}
+	frames.Add(mgl32.Translate3D(10, 0, 0), 0)
+	frames.Add(mgl32.Translate3D(1, 0, 0), 2)
+	frames.Add(mgl32.Translate3D(1, 0, 5), 5)
+	frames.Add(mgl32.Translate3D(-5, 0, 5), 9)
+
+	frames2 := render.Frames{Replay: true}
+	frames2.Add(mgl32.HomogRotate3DY(0), 0)
+	frames2.Add(mgl32.HomogRotate3DY(360), 2)
+
+	x1 := r.CreateController()
+	x1.Frames = frames2
+	//o1.Frames = frames
+
+	render.AddToTree(x1, o1)
+	render.AddToTree(r.Scene, x1)
 
 	var lineData []float32
 	for z := -15; z < 16; z++ {
@@ -59,6 +63,11 @@ func main() {
 		lineData = append(lineData, it...)
 	}
 	o3 := r.CreateLine(lineData)
-	r.Scene.Add(o3)
+	render.AddToTree(r.Scene, o3)
+	for it := range r.Scene.WalkTree() {
+		if item, ok := it.(render.Object); ok {
+			fmt.Println(item)
+		}
+	}
 	r.Run()
 }

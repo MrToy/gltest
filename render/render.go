@@ -1,20 +1,20 @@
 package render
 
 import (
+	//"fmt"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
-	//"log"
 	"runtime"
 )
 
 const (
 	vertexShader = `
 #version 330
-
 uniform mat4 projection;
 uniform mat4 camera;
 uniform mat4 model;
+uniform mat4 parent;
 
 in vec3 vert;
 in vec2 vertTexCoord;
@@ -23,7 +23,7 @@ out vec2 fragTexCoord;
 
 void main() {
     fragTexCoord = vertTexCoord;
-    gl_Position = projection * camera * model * vec4(vert, 1);
+    gl_Position = projection * camera * parent * model * vec4(vert, 1);
 }
 ` + "\x00"
 
@@ -156,9 +156,11 @@ func (this *Render) Run() {
 	for !this.window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(this.program)
-		for _, it := range this.Scene.GetAll() {
-			if it.Renderer != nil {
-				it.Render()
+		for it := range this.Scene.WalkTree() {
+			if item, ok := it.(interface {
+				Render()
+			}); ok {
+				item.Render()
 			}
 		}
 		this.window.SwapBuffers()
