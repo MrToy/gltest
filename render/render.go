@@ -152,14 +152,28 @@ func New() (*Render, error) {
 	return render, nil
 }
 
+type Renderer interface {
+	Render()
+}
+
+type ModelGetSeter interface {
+	SetParentModel(mgl32.Mat4)
+	GetModel() mgl32.Mat4
+}
+
 func (this *Render) Run() {
 	for !this.window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(this.program)
-		for it := range this.Scene.WalkTree() {
-			if item, ok := it.(interface {
-				Render()
-			}); ok {
+		for it := range this.Scene.Walk() {
+			if it.Parent != nil {
+				item, ok := it.Data.(ModelGetSeter)
+				pitem, pok := it.Parent.Data.(ModelGetSeter)
+				if ok && pok {
+					item.SetParentModel(pitem.GetModel())
+				}
+			}
+			if item, ok := it.Data.(Renderer); ok {
 				item.Render()
 			}
 		}

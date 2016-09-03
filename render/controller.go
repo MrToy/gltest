@@ -8,16 +8,12 @@ import (
 )
 
 type Controller struct {
-	TreeNode
 	SelfModel     mgl32.Mat4
+	ParentModel   mgl32.Mat4
 	Model         mgl32.Mat4
 	modelUniform  int32
 	parentUniform int32
 	Frames
-}
-
-type ModelGetter interface {
-	GetModel() mgl32.Mat4
 }
 
 func (this *Render) CreateController() *Controller {
@@ -29,9 +25,18 @@ func (this *Render) CreateController() *Controller {
 	return &Controller{
 		SelfModel:     model,
 		Model:         model,
+		ParentModel:   model,
 		modelUniform:  modelUniform,
 		parentUniform: parentUniform,
 	}
+}
+
+func (this *Controller) SetParentModel(it mgl32.Mat4) {
+	this.ParentModel = it
+}
+
+func (this *Controller) GetModel() mgl32.Mat4 {
+	return this.Model
 }
 
 func (this *Controller) Render() {
@@ -40,14 +45,6 @@ func (this *Controller) Render() {
 	} else {
 		this.Model = this.SelfModel
 	}
-	model := mgl32.Ident4()
-	if it, ok := this.Parent.(ModelGetter); ok {
-		model = it.GetModel()
-	}
-	gl.UniformMatrix4fv(this.parentUniform, 1, false, &model[0])
+	gl.UniformMatrix4fv(this.parentUniform, 1, false, &this.ParentModel[0])
 	gl.UniformMatrix4fv(this.modelUniform, 1, false, &this.Model[0])
-}
-
-func (this *Controller) GetModel() mgl32.Mat4 {
-	return this.Model
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	//"math/rand"
 	//"time"
-	"fmt"
+	//"fmt"
 )
 
 func main() {
@@ -42,16 +42,9 @@ func main() {
 	frames.Add(mgl32.Translate3D(1, 0, 5), 5)
 	frames.Add(mgl32.Translate3D(-5, 0, 5), 9)
 
-	frames2 := render.Frames{Replay: true}
-	frames2.Add(mgl32.HomogRotate3DY(0), 0)
-	frames2.Add(mgl32.HomogRotate3DY(360), 2)
-
-	x1 := r.CreateController()
-	x1.Frames = frames2
-	//o1.Frames = frames
-
-	render.AddToTree(x1, o1)
-	render.AddToTree(r.Scene, x1)
+	o1.Frames = frames
+	t1 := &render.TreeNode{Data: o1}
+	r.Scene.Add(t1)
 
 	var lineData []float32
 	for z := -15; z < 16; z++ {
@@ -63,11 +56,8 @@ func main() {
 		lineData = append(lineData, it...)
 	}
 	o3 := r.CreateLine(lineData)
-	render.AddToTree(r.Scene, o3)
-	for it := range r.Scene.WalkTree() {
-		if item, ok := it.(render.Object); ok {
-			fmt.Println(item)
-		}
-	}
+	t3 := &render.TreeNode{Data: o3}
+	r.Scene.Add(t3)
+
 	r.Run()
 }
