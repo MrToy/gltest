@@ -1,7 +1,6 @@
 package render
 
 import (
-	//"fmt"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 )
@@ -35,7 +34,6 @@ func (this *Render) CreateObject(data []float32) *Object {
 	color := mgl32.Vec4{0, 0, 0, 0}
 	colorUniform := gl.GetUniformLocation(this.program, gl.Str("color\x00"))
 	gl.Uniform4fv(colorUniform, 1, &color[0])
-
 	return &Object{
 		vao:          vao,
 		vbo:          vbo,

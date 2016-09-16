@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/MrToy/gltest/render"
+	"github.com/MrToy/render"
 	//"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	//"math/rand"
@@ -58,6 +58,7 @@ func main() {
 	o3 := r.CreateLine(lineData)
 	t3 := &render.TreeNode{Data: o3}
 	r.Scene.Add(t3)
-
+	t4, _ := r.ImportDae("xx.dae")
+	r.Scene.Add(t4)
 	r.Run()
 }
